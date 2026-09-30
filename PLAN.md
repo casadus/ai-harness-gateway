@@ -2,7 +2,9 @@
 
 ## Objective and acceptance
 
-Run a gateway on each developer's Windows 11 machine so coding harnesses, providers, and models can be evaluated separately. The gateway listens on `127.0.0.1` and maps explicit model aliases to either a local Ollama model or an OpenRouter cloud model. It records the selected harness, provider, model, and task without storing source content.
+Run a gateway on each developer's Windows 11 machine so coding harnesses, providers, and models can be used for regular coding work and evaluated separately when needed. The gateway listens on `127.0.0.1` and maps explicit model aliases to either a local Ollama model or an OpenRouter cloud model. It records the selected harness, provider, model, and task without storing source content.
+
+The default experience should be easy to start from Windows: install once, open an app shortcut, choose a harness, choose local or cloud, choose a model, choose a project folder, and start working. PowerShell scripts and direct commands must remain available for automation, diagnostics, and source development, but they should not be required for normal daily use.
 
 Version 1 supports these eight paths through the gateway:
 
@@ -66,6 +68,8 @@ Each path must complete the same included C# task: read files, make a change, us
 
 - [ ] Slice 6: Launch script
   - [ ] Add `launch-agent.ps1` to select harness, provider, model, and task.
+  - [ ] Support regular work mode as the default flow: select harness, provider, model, and project folder, then open the harness ready to work.
+  - [ ] Support evaluation mode for fixed fixture and matrix runs.
   - [ ] Start the gateway for the duration of a run.
   - [ ] Apply all harness settings process-scoped.
   - [ ] Clearly show LOCAL or CLOUD before launch.
@@ -73,51 +77,75 @@ Each path must complete the same included C# task: read files, make a change, us
   - [ ] Disable optional web features during local evaluation.
   - [ ] Verify the Ollama tag is installed locally rather than an Ollama cloud tag.
 
+- [ ] Slice 7: Interactive launcher and registries
+  - [ ] Add a Windows-friendly launcher entry point that can be started from a shortcut without opening PowerShell manually.
+  - [ ] Show installed harnesses and allow enabling or disabling Codex CLI, Claude Code, OpenCode, and GitHub Copilot CLI.
+  - [ ] Show clear install guidance for missing harnesses.
+  - [ ] Show configured model aliases grouped by provider.
+  - [ ] Show installed Ollama models from the local Ollama service.
+  - [ ] Show recommended Ollama models and the exact `ollama pull ...` command when a model is missing.
+  - [ ] Show configured OpenRouter models and whether `OPENROUTER_API_KEY` is available.
+  - [ ] Provide OpenRouter model setup guidance, including where to get a key and where to choose model IDs.
+  - [ ] Make cloud routing and possible provider cost/privacy implications visible before launch.
+  - [ ] Let the user add, remove, or edit model aliases without editing JSON by hand.
+  - [ ] Let the user add, remove, enable, or disable harness launch options without editing JSON by hand.
+  - [ ] Keep command-line equivalents available for every launcher action.
+
 ## Installer, documentation, and security slices
 
-- [ ] Slice 7: Fixture and result format
+- [ ] Slice 8: Fixture and result format
   - [ ] Create one disposable C# fixture with no company code.
   - [ ] Add a fixed prompt, expected observable result, and reset procedure.
   - [ ] Add a structured result record with date, task revision, harness/version, provider, model/tag, gateway/version, context, success, tool behavior, check outcome, duration, intervention, and notes.
   - [ ] Start every comparison from the same fixture revision.
 
-- [ ] Slice 8: Diagnostics
+- [ ] Slice 9: Diagnostics
   - [ ] Add `diagnostics.ps1`.
   - [x] Add a gateway health check endpoint.
   - [ ] Report tool versions, configured route names, provider reachability, and recent categorized errors.
   - [ ] Confirm diagnostics exclude prompts, responses, source text, headers, and credentials.
   - [ ] Check missing-tool, stopped-Ollama, missing-model, missing-key, upstream-error, occupied-port, and interrupted-stream behavior.
 
-- [ ] Slice 9: Security and repository hygiene
+- [ ] Slice 10: Security and repository hygiene
   - [x] Add `.gitignore` coverage for keys, `.env`, local config, logs, results, generated state, build output, IDE files, and installer artifacts.
   - [x] Keep the OpenRouter key out of route files and docs examples.
   - [ ] Add a release secret scan.
   - [ ] Inspect release contents before publishing.
 
-- [ ] Slice 10: Installer
+- [ ] Slice 11: Installer
   - [ ] Publish a single `win-x64` setup wizard EXE as a public GitHub Release asset.
-  - [ ] Bundle the self-contained gateway, launch and diagnostic scripts, and C# fixture.
+  - [ ] Bundle the self-contained gateway, Windows launcher, launch and diagnostic scripts, and C# fixture.
   - [ ] Use a per-user Inno Setup installation and Windows uninstaller.
   - [ ] Install gateway-owned files under the user's application directory.
+  - [ ] Install a Start Menu shortcut named `AI Harness Gateway`.
+  - [ ] Optionally install a Desktop shortcut.
+  - [ ] Include and install a recognizable application icon for the launcher and shortcuts.
+  - [ ] Ensure the shortcut opens the regular work launcher, not a raw PowerShell prompt.
+  - [ ] Keep PowerShell scripts installed and documented for advanced use.
   - [ ] Keep mutable logs, results, and configuration in separate per-user data directories.
   - [ ] Check Windows version, memory, disk, Ollama, Ollama service/model, all four harness commands, and the .NET SDK needed by the sample.
   - [ ] Offer each missing prerequisite installation separately after approval.
   - [ ] Provide manual instructions when an automatic installer is unavailable.
   - [ ] Make setup safe to rerun.
   - [ ] Uninstall gateway-owned files and generated state, with an explicit choice for retaining results.
+  - [ ] Remove installed shortcuts and icon assets during uninstall.
   - [ ] Leave independently installed harnesses, Ollama, and model weights in place.
 
-- [ ] Slice 11: README and release docs
+- [ ] Slice 12: README and release docs
   - [x] Document current source build and local gateway run commands.
   - [ ] Document one-file installation after the installer exists.
-  - [ ] Document launch examples after `launch-agent.ps1` exists.
+  - [ ] Document shortcut-based regular work startup after the launcher exists.
+  - [ ] Document PowerShell launch examples after `launch-agent.ps1` exists.
+  - [ ] Document how to add/remove harness options and model aliases.
+  - [ ] Document how to discover installed Ollama models and choose/pull recommended models.
+  - [ ] Document how to configure OpenRouter, choose model IDs, and understand cloud routing.
   - [ ] Document route data flow, local/cloud privacy, prerequisites, result collection, diagnostics, and uninstall.
   - [ ] Publish a SHA-256 checksum for the initially unsigned installer.
   - [ ] Document possible Windows SmartScreen prompts.
 
 ## Evaluation and release slices
 
-- [ ] Slice 12: Prototype-machine evaluation
+- [ ] Slice 13: Prototype-machine evaluation
   - [ ] Verify Codex CLI + Ollama.
   - [ ] Verify Codex CLI + OpenRouter.
   - [ ] Verify Claude Code + Ollama.
@@ -129,14 +157,16 @@ Each path must complete the same included C# task: read files, make a change, us
   - [ ] Confirm every path includes streamed tool calls, file edits, command execution, and the expected C# check.
   - [ ] Confirm cloud runs appear in OpenRouter activity.
 
-- [ ] Slice 13: Second-machine release rehearsal
+- [ ] Slice 14: Second-machine release rehearsal
   - [ ] Download the release EXE on a second 16 GB Windows machine.
   - [ ] Install from the downloaded EXE.
+  - [ ] Confirm Start Menu shortcut and optional Desktop shortcut launch the regular work flow.
   - [ ] Repeat all eight harness/provider paths.
   - [ ] Uninstall.
+  - [ ] Confirm shortcuts and icon assets are removed.
   - [ ] Confirm normal Codex configuration and other shared tools are unaffected.
 
-- [ ] Slice 14: Public release
+- [ ] Slice 15: Public release
   - [ ] Tag the release only after the eight-path and installer gates pass.
   - [ ] Publish the EXE.
   - [ ] Publish the SHA-256 checksum.
@@ -145,7 +175,7 @@ Each path must complete the same included C# task: read files, make a change, us
 
 ## Defaults and deferred work
 
-The repository and release assets are public. The initial fixture contains no company code. The installer handles setup and checks; `launch-agent.ps1` starts evaluations. OpenCode is evaluated natively on Windows for version 1. The gateway uses explicit routes and one local and one cloud model for the initial harness comparison. Later releases can add more models and tasks.
+The repository and release assets are public. The initial fixture contains no company code. The installer handles setup and checks; the installed shortcut starts the regular work launcher, while `launch-agent.ps1` remains available for scripted launch and evaluation runs. OpenCode is evaluated natively on Windows for version 1. The gateway uses explicit routes and one local and one cloud model for the initial harness comparison. Later releases can add more models, tasks, richer model discovery, and a fuller launcher UI.
 
 Do not add LiteLLM, a shared team gateway, LAN binding, Docker or Azure deployment, automatic provider fallback, centralized usage collection, dashboards, budgets, or automated scoring in version 1.
 
