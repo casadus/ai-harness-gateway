@@ -78,15 +78,16 @@ Each path must complete the same included C# task: read files, make a change, us
   - [ ] Verify the Ollama tag is installed locally rather than an Ollama cloud tag.
 
 - [ ] Slice 7: Interactive launcher and registries
-  - [ ] Add a Windows-friendly launcher entry point that can be started from a shortcut without opening PowerShell manually.
-  - [ ] Show installed harnesses and allow enabling or disabling Codex CLI, Claude Code, OpenCode, and GitHub Copilot CLI.
+  - [x] Add a Windows-friendly launcher entry point that can be started from a shortcut without opening PowerShell manually.
+  - [x] Show installed harnesses for Codex CLI, Claude Code, OpenCode, and GitHub Copilot CLI.
+  - [ ] Allow enabling or disabling Codex CLI, Claude Code, OpenCode, and GitHub Copilot CLI.
   - [ ] Show clear install guidance for missing harnesses.
-  - [ ] Show configured model aliases grouped by provider.
-  - [ ] Show installed Ollama models from the local Ollama service.
-  - [ ] Show recommended Ollama models and the exact `ollama pull ...` command when a model is missing.
-  - [ ] Show configured OpenRouter models and whether `OPENROUTER_API_KEY` is available.
-  - [ ] Provide OpenRouter model setup guidance, including where to get a key and where to choose model IDs.
-  - [ ] Make cloud routing and possible provider cost/privacy implications visible before launch.
+  - [x] Show configured model aliases grouped by provider.
+  - [x] Show installed Ollama models from the local Ollama service.
+  - [x] Show recommended Ollama models and the exact `ollama pull ...` command when a model is missing.
+  - [x] Show configured OpenRouter models and whether `OPENROUTER_API_KEY` is available.
+  - [x] Provide OpenRouter model setup guidance, including where to get a key and where to choose model IDs.
+  - [x] Make cloud routing and possible provider cost/privacy implications visible before launch.
   - [ ] Let the user add, remove, or edit model aliases without editing JSON by hand.
   - [ ] Let the user add, remove, enable, or disable harness launch options without editing JSON by hand.
   - [ ] Keep command-line equivalents available for every launcher action.

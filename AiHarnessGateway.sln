@@ -8,6 +8,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiHarnessGateway.Tests", "t
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FakeUpstream", "tests\FakeUpstream\FakeUpstream.csproj", "{6B26C4DC-927D-44E6-9B58-E95B6787A2DB}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AiHarnessGateway.Launcher", "src\AiHarnessGateway.Launcher\AiHarnessGateway.Launcher.csproj", "{BA8C1E3E-42B0-4551-B245-26386DB1413D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,10 @@ Global
 		{6B26C4DC-927D-44E6-9B58-E95B6787A2DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B26C4DC-927D-44E6-9B58-E95B6787A2DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B26C4DC-927D-44E6-9B58-E95B6787A2DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA8C1E3E-42B0-4551-B245-26386DB1413D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA8C1E3E-42B0-4551-B245-26386DB1413D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA8C1E3E-42B0-4551-B245-26386DB1413D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA8C1E3E-42B0-4551-B245-26386DB1413D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

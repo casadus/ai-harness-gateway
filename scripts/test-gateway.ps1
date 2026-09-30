@@ -71,6 +71,18 @@ function Invoke-GatewayPost {
 Invoke-Native dotnet restore $solutionPath --ignore-failed-sources
 Invoke-Native dotnet build $solutionPath --no-restore
 Invoke-Native dotnet run --project (Join-Path $repoRoot 'tests/AiHarnessGateway.Tests/AiHarnessGateway.Tests.csproj') --no-build
+
+$launcherOutput = & dotnet run --project (Join-Path $repoRoot 'src/AiHarnessGateway.Launcher/AiHarnessGateway.Launcher.csproj') --no-build -- --config $configPath --no-pause
+if ($LASTEXITCODE -ne 0) {
+    throw "Launcher exited with code $LASTEXITCODE."
+}
+
+foreach ($expectedText in @('AI Harness Gateway', 'Harnesses', 'Configured model aliases', 'local-qwen', 'cloud-claude', 'Ollama', 'OpenRouter')) {
+    if (($launcherOutput -join "`n") -notmatch [regex]::Escape($expectedText)) {
+        throw "Launcher output did not include expected text: $expectedText"
+    }
+}
+
 Invoke-Native -FilePath powershell -Arguments @(
     '-NoProfile',
     '-ExecutionPolicy',
