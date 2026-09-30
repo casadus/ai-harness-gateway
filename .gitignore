@@ -1,0 +1,43 @@
+# Credentials and developer-specific configuration
+.env
+.env.*
+!.env.example
+*.local.json
+*.local.toml
+*.secrets.json
+*.key
+*.pem
+*.pfx
+*.p12
+
+# Gateway state, diagnostics, and evaluation output
+.state/
+.local/
+logs/
+results/*
+!results/README.md
+!results/*.example.json
+*.log
+*.log.*
+
+# .NET and IDE output
+bin/
+obj/
+.vs/
+.vscode/
+TestResults/
+*.user
+*.suo
+
+# Installer and package output
+artifacts/
+publish/
+dist/
+*.nupkg
+*.snupkg
+*.msi
+
+# OS temporary files
+Thumbs.db
+Desktop.ini
+*.tmp
