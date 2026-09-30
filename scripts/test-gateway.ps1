@@ -71,6 +71,13 @@ function Invoke-GatewayPost {
 Invoke-Native dotnet restore $solutionPath --ignore-failed-sources
 Invoke-Native dotnet build $solutionPath --no-restore
 Invoke-Native dotnet run --project (Join-Path $repoRoot 'tests/AiHarnessGateway.Tests/AiHarnessGateway.Tests.csproj') --no-build
+Invoke-Native -FilePath powershell -Arguments @(
+    '-NoProfile',
+    '-ExecutionPolicy',
+    'Bypass',
+    '-File',
+    (Join-Path $repoRoot 'scripts/test-forwarding.ps1')
+)
 
 $arguments = @(
     'run',

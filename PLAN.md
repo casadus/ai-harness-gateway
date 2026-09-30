@@ -40,6 +40,7 @@ Each path must complete the same included C# task: read files, make a change, us
   - [x] Rewrite only the request `model` field from gateway alias to upstream model ID.
   - [x] Strip inbound client `Authorization` before forwarding.
   - [x] Read OpenRouter authentication from `OPENROUTER_API_KEY` only in the gateway process.
+  - [x] Prove model rewrite, authorization stripping, upstream status preservation, tool payload forwarding, and streamed response copying with a local fake upstream.
   - [ ] Preserve streamed upstream responses under real harness traffic.
   - [ ] Preserve tool-call payloads under real harness traffic.
   - [ ] Preserve cancellation and useful upstream error status.

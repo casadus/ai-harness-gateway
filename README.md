@@ -63,6 +63,7 @@ Run the gateway smoke test:
 ```
 
 The smoke test builds the solution, runs the dependency-free test runner in [tests/AiHarnessGateway.Tests](tests/AiHarnessGateway.Tests), starts the gateway, checks `/healthz`, verifies unknown aliases fail before upstream traffic, and stops the gateway.
+It also runs [scripts/test-forwarding.ps1](scripts/test-forwarding.ps1), which uses [tests/FakeUpstream](tests/FakeUpstream) to verify model alias rewriting, inbound authorization stripping, tool payload forwarding, upstream status preservation, and streamed response copying through the gateway.
 
 Run locally:
 
