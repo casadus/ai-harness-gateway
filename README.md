@@ -14,7 +14,13 @@ Codex CLI / Claude Code / OpenCode / GitHub Copilot CLI
 
 ## Current status
 
-This repository contains the [version 1 plan](PLAN.md) and a [dated handoff](HANDOFF-2026-09-30.md). The gateway, installer, scripts, and sample task have **not been implemented yet**. There is no installer to download or setup command to run at this stage.
+This repository contains the [version 1 plan](PLAN.md), a [dated handoff](HANDOFF-2026-09-30.md), and an initial .NET gateway skeleton. The gateway currently supports loopback binding, explicit model-alias route resolution, safe health metadata, and pass-through POST handlers for:
+
+- `POST /v1/responses`
+- `POST /v1/chat/completions`
+- `POST /v1/messages`
+
+The installer, launch scripts, harness-specific configuration, and sample task have **not been implemented yet**. There is no installer to download or setup command to run at this stage.
 
 Version 1 targets Windows 11 and one repeatable C# task across four harnesses and both providers. The intended distribution is a single setup wizard EXE in GitHub Releases. The installer will check prerequisites, offer each missing installation for approval, and include diagnostics and an uninstaller. The release will include a SHA-256 checksum.
 
@@ -39,4 +45,34 @@ API keys must not be committed or written to logs or result files. The gateway w
 
 ## Development
 
-See [PLAN.md](PLAN.md) for the ordered implementation and release tasks. This public repository is the source of truth for the gateway and installer. Installation and usage commands will be added here as soon as the first working build exists.
+The gateway project is in [src/AiHarnessGateway](src/AiHarnessGateway). A sample route file is provided at [config/gateway.routes.example.json](config/gateway.routes.example.json).
+The repository pins the .NET SDK with [global.json](global.json).
+
+Build locally:
+
+```powershell
+dotnet restore .\AiHarnessGateway.sln --ignore-failed-sources
+dotnet build .\AiHarnessGateway.sln --no-restore
+```
+
+Run the gateway smoke test:
+
+```powershell
+.\scripts\test-gateway.ps1
+```
+
+Run locally:
+
+```powershell
+dotnet run --project .\src\AiHarnessGateway\AiHarnessGateway.csproj --no-build --no-launch-profile -- --config "$PWD\config\gateway.routes.example.json"
+```
+
+Check health:
+
+```powershell
+Invoke-RestMethod -Uri http://127.0.0.1:5872/healthz
+```
+
+Cloud routes read the OpenRouter key from `OPENROUTER_API_KEY` in the gateway process only. Do not put keys in route files, command arguments, logs, or result files.
+
+See [PLAN.md](PLAN.md) for the ordered implementation and release tasks. This public repository is the source of truth for the gateway and installer. Installation and usage commands will be added here as soon as the first working release exists.

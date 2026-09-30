@@ -1,0 +1,20 @@
+{
+  "listenUrl": "http://127.0.0.1:5872",
+  "routes": [
+    {
+      "alias": "local-qwen",
+      "provider": "ollama",
+      "protocol": "openai",
+      "model": "qwen3.5:9b",
+      "baseUrl": "http://127.0.0.1:11434/v1"
+    },
+    {
+      "alias": "cloud-claude",
+      "provider": "openrouter",
+      "protocol": "openai",
+      "model": "anthropic/claude-sonnet-4.6",
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "authEnvironmentVariable": "OPENROUTER_API_KEY"
+    }
+  ]
+}
