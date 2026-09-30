@@ -47,6 +47,7 @@ API keys must not be committed or written to logs or result files. The gateway w
 
 The gateway project is in [src/AiHarnessGateway](src/AiHarnessGateway). A sample route file is provided at [config/gateway.routes.example.json](config/gateway.routes.example.json).
 The repository pins the .NET SDK with [global.json](global.json).
+Safe diagnostics are written as metadata-only newline-delimited JSON to `.local/logs/gateway.ndjson` by default, with size-based rotation.
 
 Build locally:
 
@@ -60,6 +61,8 @@ Run the gateway smoke test:
 ```powershell
 .\scripts\test-gateway.ps1
 ```
+
+The smoke test builds the solution, runs the dependency-free test runner in [tests/AiHarnessGateway.Tests](tests/AiHarnessGateway.Tests), starts the gateway, checks `/healthz`, verifies unknown aliases fail before upstream traffic, and stops the gateway.
 
 Run locally:
 

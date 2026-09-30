@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -59,7 +58,7 @@ public sealed class GatewayProxy(
             };
 
             CopyRequestHeaders(context.Request, upstreamRequest);
-            ApplyRouteAuthentication(upstreamRequest, resolution.Route);
+            UpstreamAuthentication.Apply(upstreamRequest, resolution.Route);
 
             var client = httpClientFactory.CreateClient(nameof(GatewayProxy));
             using var upstreamResponse = await client.SendAsync(
@@ -137,23 +136,6 @@ public sealed class GatewayProxy(
                 target.Headers.TryAddWithoutValidation(header.Key, values);
             }
         }
-    }
-
-    private static void ApplyRouteAuthentication(HttpRequestMessage request, RouteConfig route)
-    {
-        if (!route.RequiresBearerToken)
-        {
-            return;
-        }
-
-        var token = Environment.GetEnvironmentVariable(route.AuthEnvironmentVariable!);
-        if (string.IsNullOrWhiteSpace(token))
-        {
-            throw new InvalidOperationException(
-                $"Route '{route.Alias}' requires environment variable '{route.AuthEnvironmentVariable}'.");
-        }
-
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
     }
 
     private static async Task CopyResponseAsync(

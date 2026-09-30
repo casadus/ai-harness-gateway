@@ -6,6 +6,7 @@ namespace AiHarnessGateway;
 public sealed record GatewayConfig
 {
     public string ListenUrl { get; init; } = "http://127.0.0.1:5872";
+    public DiagnosticsConfig Diagnostics { get; init; } = new();
     public RouteConfig[] Routes { get; init; } = GatewayDefaults.Routes;
 
     public void Validate()
@@ -29,6 +30,33 @@ public sealed record GatewayConfig
             {
                 throw new InvalidOperationException($"Duplicate route alias '{route.Alias}'.");
             }
+        }
+
+        Diagnostics.Validate();
+    }
+}
+
+public sealed record DiagnosticsConfig
+{
+    public string LogFilePath { get; init; } = ".local/logs/gateway.ndjson";
+    public long MaxLogBytes { get; init; } = 1_048_576;
+    public int RetainedLogFiles { get; init; } = 3;
+
+    public void Validate()
+    {
+        if (string.IsNullOrWhiteSpace(LogFilePath))
+        {
+            throw new InvalidOperationException("Diagnostics logFilePath is required.");
+        }
+
+        if (MaxLogBytes < 1024)
+        {
+            throw new InvalidOperationException("Diagnostics maxLogBytes must be at least 1024.");
+        }
+
+        if (RetainedLogFiles < 0)
+        {
+            throw new InvalidOperationException("Diagnostics retainedLogFiles cannot be negative.");
         }
     }
 }

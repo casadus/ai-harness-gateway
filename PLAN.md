@@ -27,13 +27,13 @@ Each path must complete the same included C# task: read files, make a change, us
   - [x] Build successfully with `dotnet build .\AiHarnessGateway.sln --no-restore`.
   - [x] Add `scripts/test-gateway.ps1` for repeatable local smoke verification.
 
-- [ ] Slice 2: Route resolution and safe diagnostics
+- [x] Slice 2: Route resolution and safe diagnostics
   - [x] Map stable aliases `local-qwen` and `cloud-claude` to exact upstream model IDs.
   - [x] Reject unknown aliases before upstream traffic.
   - [x] Keep provider, model, and route metadata separate in diagnostics.
   - [x] Avoid logging prompts, responses, headers, source text, or credentials.
-  - [ ] Persist safe diagnostics to a local log file with rotation.
-  - [ ] Add tests for duplicate aliases, invalid loopback URLs, missing model aliases, and missing cloud keys.
+  - [x] Persist safe diagnostics to a local log file with rotation.
+  - [x] Add tests for duplicate aliases, invalid loopback URLs, missing model aliases, and missing cloud keys.
 
 - [ ] Slice 3: Protocol forwarding
   - [x] Add pass-through handlers for `POST /v1/responses`, `POST /v1/chat/completions`, and `POST /v1/messages`.

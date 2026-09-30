@@ -1,5 +1,10 @@
 {
   "listenUrl": "http://127.0.0.1:5872",
+  "diagnostics": {
+    "logFilePath": ".local/logs/gateway.ndjson",
+    "maxLogBytes": 1048576,
+    "retainedLogFiles": 3
+  },
   "routes": [
     {
       "alias": "local-qwen",
