@@ -81,7 +81,14 @@ static async Task HandleAsync(TcpClient client)
 
     if (body["stream"]?.GetValue<bool>() == true)
     {
-        await WriteStreamAsync(stream);
+        if (path.EndsWith("/responses", StringComparison.Ordinal))
+        {
+            await WriteResponsesStreamAsync(stream, body["model"]?.GetValue<string>() ?? "fake-model");
+        }
+        else
+        {
+            await WriteStreamAsync(stream);
+        }
         return;
     }
 
@@ -139,6 +146,106 @@ static async Task WriteStreamAsync(Stream stream)
     }
 
     await stream.WriteAsync(Encoding.ASCII.GetBytes("0\r\n\r\n"));
+}
+
+static async Task WriteResponsesStreamAsync(Stream stream, string model)
+{
+    var response = new
+    {
+        id = "resp_fake_1",
+        @object = "response",
+        created_at = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+        status = "completed",
+        error = (object?)null,
+        incomplete_details = (object?)null,
+        instructions = (object?)null,
+        max_output_tokens = (int?)null,
+        model,
+        output = new[]
+        {
+            new
+            {
+                id = "msg_fake_1",
+                type = "message",
+                status = "completed",
+                role = "assistant",
+                content = new[] { new { type = "output_text", text = "hello", annotations = Array.Empty<object>() } }
+            }
+        },
+        parallel_tool_calls = true,
+        previous_response_id = (string?)null,
+        reasoning = new { effort = (string?)null, summary = (string?)null },
+        store = false,
+        temperature = 1.0,
+        text = new { format = new { type = "text" } },
+        tool_choice = "auto",
+        tools = Array.Empty<object>(),
+        top_p = 1.0,
+        truncation = "disabled",
+        usage = new
+        {
+            input_tokens = 1,
+            output_tokens = 1,
+            total_tokens = 2,
+            input_tokens_details = new { cached_tokens = 0 },
+            output_tokens_details = new { reasoning_tokens = 0 }
+        },
+        user = (string?)null,
+        metadata = new { }
+    };
+    var itemId = "msg_fake_1";
+    var completedItem = response.output[0];
+    var completedPart = completedItem.content[0];
+    var events = new (string Name, object Data)[]
+    {
+        ("response.output_item.added", new
+        {
+            type = "response.output_item.added", output_index = 0,
+            item = new { id = itemId, type = "message", status = "in_progress", role = "assistant", content = Array.Empty<object>() },
+            sequence_number = 1
+        }),
+        ("response.content_part.added", new
+        {
+            type = "response.content_part.added", item_id = itemId, output_index = 0, content_index = 0,
+            part = new { type = "output_text", text = "", annotations = Array.Empty<object>(), logprobs = Array.Empty<object>() },
+            sequence_number = 2
+        }),
+        ("response.output_text.delta", new
+        {
+            type = "response.output_text.delta", item_id = itemId, output_index = 0, content_index = 0,
+            delta = "hello", sequence_number = 3, logprobs = Array.Empty<object>()
+        }),
+        ("response.output_text.done", new
+        {
+            type = "response.output_text.done", item_id = itemId, output_index = 0, content_index = 0,
+            text = "hello", sequence_number = 4, logprobs = Array.Empty<object>()
+        }),
+        ("response.content_part.done", new
+        {
+            type = "response.content_part.done", item_id = itemId, output_index = 0, content_index = 0,
+            part = completedPart, sequence_number = 5
+        }),
+        ("response.output_item.done", new
+        {
+            type = "response.output_item.done", output_index = 0, item = completedItem, sequence_number = 6
+        }),
+        ("response.completed", new { type = "response.completed", response, sequence_number = 7 })
+    };
+    var eventText = string.Concat(events.Select(entry =>
+        $"event: {entry.Name}\ndata: {System.Text.Json.JsonSerializer.Serialize(entry.Data)}\n\n"));
+    var chunk = Encoding.UTF8.GetBytes(eventText);
+    var responseHead = string.Join("\r\n", new[]
+    {
+        "HTTP/1.1 200 OK",
+        "Content-Type: text/event-stream",
+        $"Content-Length: {chunk.Length}",
+        "Connection: close",
+        "",
+        ""
+    });
+
+    await stream.WriteAsync(Encoding.ASCII.GetBytes(responseHead));
+    await stream.WriteAsync(chunk);
 }
 
 static string ReasonPhrase(int status)

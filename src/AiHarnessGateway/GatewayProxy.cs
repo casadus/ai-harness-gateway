@@ -114,7 +114,14 @@ public sealed class GatewayProxy(
         var baseUri = route.BaseUrl.EndsWith("/", StringComparison.Ordinal)
             ? route.BaseUrl[..^1]
             : route.BaseUrl;
-        return new Uri($"{baseUri}{requestPath}");
+        var path = requestPath.Value ?? string.Empty;
+        if (baseUri.EndsWith("/v1", StringComparison.OrdinalIgnoreCase) &&
+            path.StartsWith("/v1/", StringComparison.OrdinalIgnoreCase))
+        {
+            path = path[3..];
+        }
+
+        return new Uri($"{baseUri}{path}");
     }
 
     private static void CopyRequestHeaders(HttpRequest source, HttpRequestMessage target)

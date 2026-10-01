@@ -139,7 +139,14 @@ $config = @{
             provider = 'fake'
             protocol = 'openai'
             model = 'upstream-model'
-            baseUrl = $upstreamUrl
+            baseUrl = "$upstreamUrl/v1"
+        },
+        @{
+            alias = 'nested-route'
+            provider = 'fake'
+            protocol = 'openai'
+            model = 'nested-model'
+            baseUrl = "$upstreamUrl/api/v1"
         }
     )
 } | ConvertTo-Json -Depth 8
@@ -182,6 +189,13 @@ try {
 
     if ($toolBody.firstToolName -ne 'sample_tool') {
         throw "Expected tool payload to reach upstream, but received '$($toolBody.firstToolName)'."
+    }
+
+    $nestedJson = '{"model":"nested-route","messages":[{"role":"user","content":"hi"}]}'
+    $nestedResponse = Invoke-JsonPost -Uri "$gatewayUrl/v1/chat/completions" -Json $nestedJson
+    $nestedBody = $nestedResponse.Body | ConvertFrom-Json
+    if ($nestedBody.path -ne '/api/v1/chat/completions' -or $nestedBody.model -ne 'nested-model') {
+        throw "Expected nested route path and model, but received: $($nestedResponse.Body)"
     }
 
     $streamJson = '{"model":"test-alias","stream":true,"messages":[{"role":"user","content":"stream"}]}'

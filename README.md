@@ -14,13 +14,13 @@ Codex CLI / Claude Code / OpenCode / GitHub Copilot CLI
 
 ## Current status
 
-This repository contains the [version 1 plan](PLAN.md), a [dated handoff](HANDOFF-2026-09-30.md), and an initial .NET gateway skeleton. The gateway currently supports loopback binding, explicit model-alias route resolution, safe health metadata, and pass-through POST handlers for:
+This repository contains the [version 1 plan](PLAN.md), a [current handoff](HANDOFF-2026-10-01.md), and an initial .NET gateway skeleton. The gateway currently supports loopback binding, explicit model-alias route resolution, safe health metadata, and pass-through POST handlers for:
 
 - `POST /v1/responses`
 - `POST /v1/chat/completions`
 - `POST /v1/messages`
 
-The installer, launch scripts, harness-specific configuration, and sample task have **not been implemented yet**. There is no installer to download or setup command to run at this stage.
+The Codex launch helper and a disposable C# sample task are available for source development. The full multi-harness launcher, installer, and live eight-path evaluation have **not been implemented yet**. There is no installer to download or setup command to run at this stage.
 
 Version 1 targets Windows 11 and one repeatable C# task across four harnesses and both providers. The intended distribution is a single setup wizard EXE in GitHub Releases. The installer will check prerequisites, offer each missing installation for approval, and include diagnostics and an uninstaller. The release will include a SHA-256 checksum.
 
@@ -72,6 +72,22 @@ dotnet run --project .\src\AiHarnessGateway.Launcher\AiHarnessGateway.Launcher.c
 ```
 
 The launcher preview is intended to become the shortcut target. It shows installed harness commands, configured model aliases, Ollama service/model status, OpenRouter key status, and setup hints.
+
+For an initial Codex-only process-scoped launch after building the gateway:
+
+```powershell
+.\scripts\launch-codex.ps1 -Alias local-qwen -ProjectPath C:\path\to\project
+```
+
+The helper creates an isolated Codex home under `.local`, starts the gateway for the Codex session, and displays the selected route. Add `-Prompt '...'` for a non-interactive run. The local route requires its Ollama model to be installed; the cloud route requires `OPENROUTER_API_KEY` in the launching shell. Neither route has completed a live coding evaluation yet.
+
+Create a fresh disposable evaluation task:
+
+```powershell
+.\scripts\new-evaluation.ps1
+```
+
+The command prints the new directory under `.local/evaluations`. Give the harness the `TASK.md` in that directory and record the run in its `result.json`. The untouched task check fails; fixing the subtotal calculation makes all three checks pass.
 
 Run locally:
 

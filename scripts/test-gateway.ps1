@@ -7,7 +7,7 @@ Add-Type -AssemblyName System.Net.Http
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $solutionPath = Join-Path $repoRoot 'AiHarnessGateway.sln'
-$projectPath = Join-Path $repoRoot 'src/AiHarnessGateway/AiHarnessGateway.csproj'
+$gatewayDll = Join-Path $repoRoot 'src/AiHarnessGateway/bin/Debug/net8.0/AiHarnessGateway.dll'
 $configPath = Join-Path $repoRoot 'config/gateway.routes.example.json'
 $gatewayUrl = "http://127.0.0.1:$Port"
 
@@ -91,25 +91,22 @@ Invoke-Native -FilePath powershell -Arguments @(
     (Join-Path $repoRoot 'scripts/test-forwarding.ps1')
 )
 
-$arguments = @(
-    'run',
-    '--project',
-    $projectPath,
-    '--no-build',
-    '--no-launch-profile',
-    '--',
-    '--config',
-    $configPath
-)
-
-$gateway = Start-Process `
-    -FilePath 'dotnet' `
-    -ArgumentList $arguments `
-    -WorkingDirectory $repoRoot `
-    -WindowStyle Hidden `
-    -PassThru
+$processInfo = [System.Diagnostics.ProcessStartInfo]::new()
+$processInfo.FileName = 'dotnet'
+$processInfo.WorkingDirectory = $repoRoot
+$processInfo.UseShellExecute = $false
+$processInfo.CreateNoWindow = $true
+$processInfo.RedirectStandardOutput = $true
+$processInfo.RedirectStandardError = $true
+$processInfo.Arguments = '"{0}" --config "{1}"' -f $gatewayDll, $configPath
+$gateway = [System.Diagnostics.Process]::Start($processInfo)
 
 try {
+    Start-Sleep -Milliseconds 500
+    if ($gateway.HasExited) {
+        throw "Gateway exited early with code $($gateway.ExitCode). Stdout: $($gateway.StandardOutput.ReadToEnd()) Stderr: $($gateway.StandardError.ReadToEnd())"
+    }
+
     $health = Wait-Gateway -HealthUrl "$gatewayUrl/healthz"
     if ($health.status -ne 'ok') {
         throw "Expected health status 'ok' but received '$($health.status)'."

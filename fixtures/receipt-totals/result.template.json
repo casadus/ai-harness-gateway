@@ -1,0 +1,25 @@
+{
+  "runId": null,
+  "dateUtc": null,
+  "taskRevision": "receipt-totals-v1",
+  "harness": null,
+  "harnessVersion": null,
+  "provider": null,
+  "model": null,
+  "modelTag": null,
+  "gatewayVersion": null,
+  "contextTokens": null,
+  "success": null,
+  "toolBehavior": {
+    "fileRead": null,
+    "fileEdit": null,
+    "commandRun": null
+  },
+  "checkOutcome": {
+    "exitCode": null,
+    "passed": null
+  },
+  "durationMs": null,
+  "humanIntervention": null,
+  "notes": null
+}

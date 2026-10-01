@@ -43,17 +43,20 @@ Each path must complete the same included C# task: read files, make a change, us
   - [x] Strip inbound client `Authorization` before forwarding.
   - [x] Read OpenRouter authentication from `OPENROUTER_API_KEY` only in the gateway process.
   - [x] Prove model rewrite, authorization stripping, upstream status preservation, tool payload forwarding, and streamed response copying with a local fake upstream.
+  - [x] Preserve `/v1` exactly once when an upstream base URL already ends in `/v1`, including nested `/api/v1` URLs.
   - [ ] Preserve streamed upstream responses under real harness traffic.
   - [ ] Preserve tool-call payloads under real harness traffic.
   - [ ] Preserve cancellation and useful upstream error status.
   - [ ] Add discovery endpoints only if observed harness integration requires them.
 
 - [ ] Slice 4: Codex first path
-  - [ ] Configure Codex with an isolated user-level `CODEX_HOME`.
-  - [ ] Verify Codex sends OpenAI Responses traffic through the gateway.
+  - [x] Configure Codex with an isolated user-level `CODEX_HOME` for a process-scoped launch.
+  - [x] Verify Codex sends OpenAI Responses traffic through the gateway using a fake upstream.
   - [ ] Run Codex against `local-qwen`.
   - [ ] Run Codex against `cloud-claude`.
   - [ ] Confirm normal user Codex settings are unaffected.
+
+  The installed Codex CLI 0.159.3 completed a fake-upstream Responses request through the gateway on 2026-10-01. This proves the route and process-scoped provider setup; it does not prove model quality or tool use. The target local model is not installed, the OpenRouter key is unset, and this machine has about 2.3 GB free, so the two live Codex paths remain unverified here.
 
 - [ ] Slice 5: Remaining harness paths
   - [ ] Configure Claude Code against the Anthropic-compatible Messages path.
@@ -95,9 +98,9 @@ Each path must complete the same included C# task: read files, make a change, us
 ## Installer, documentation, and security slices
 
 - [ ] Slice 8: Fixture and result format
-  - [ ] Create one disposable C# fixture with no company code.
-  - [ ] Add a fixed prompt, expected observable result, and reset procedure.
-  - [ ] Add a structured result record with date, task revision, harness/version, provider, model/tag, gateway/version, context, success, tool behavior, check outcome, duration, intervention, and notes.
+  - [x] Create one disposable C# fixture with no company code.
+  - [x] Add a fixed prompt, expected observable result, and fresh-copy reset procedure.
+  - [x] Add a structured result template with date, task revision, harness/version, provider, model/tag, gateway/version, context, success, tool behavior, check outcome, duration, intervention, and notes.
   - [ ] Start every comparison from the same fixture revision.
 
 - [ ] Slice 9: Diagnostics
