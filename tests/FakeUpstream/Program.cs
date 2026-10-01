@@ -79,6 +79,12 @@ static async Task HandleAsync(TcpClient client)
     var body = JsonNode.Parse(requestText) as JsonObject
         ?? throw new InvalidOperationException("Request body must be a JSON object.");
 
+    if (body["model"]?.GetValue<string>() == "rate-limited-model")
+    {
+        await WriteResponseAsync(stream, 429, "application/json", "{\"error\":{\"message\":\"simulated rate limit\"}}");
+        return;
+    }
+
     if (body["stream"]?.GetValue<bool>() == true)
     {
         if (path.EndsWith("/responses", StringComparison.Ordinal))
@@ -87,7 +93,7 @@ static async Task HandleAsync(TcpClient client)
         }
         else
         {
-            await WriteStreamAsync(stream);
+            await WriteStreamAsync(stream, body["model"]?.GetValue<string>() == "slow-model");
         }
         return;
     }
@@ -121,7 +127,7 @@ static async Task WriteResponseAsync(Stream stream, int status, string contentTy
     await stream.WriteAsync(bodyBytes);
 }
 
-static async Task WriteStreamAsync(Stream stream)
+static async Task WriteStreamAsync(Stream stream, bool slow)
 {
     var responseHead = string.Join("\r\n", new[]
     {
@@ -142,7 +148,7 @@ static async Task WriteStreamAsync(Stream stream)
         await stream.WriteAsync(chunkBytes);
         await stream.WriteAsync(Encoding.ASCII.GetBytes("\r\n"));
         await stream.FlushAsync();
-        await Task.Delay(50);
+        await Task.Delay(slow ? 2000 : 50);
     }
 
     await stream.WriteAsync(Encoding.ASCII.GetBytes("0\r\n\r\n"));
@@ -255,6 +261,7 @@ static string ReasonPhrase(int status)
         200 => "OK",
         202 => "Accepted",
         404 => "Not Found",
+        429 => "Too Many Requests",
         _ => "Status"
     };
 }

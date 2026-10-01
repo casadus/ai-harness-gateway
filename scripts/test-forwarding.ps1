@@ -147,6 +147,20 @@ $config = @{
             protocol = 'openai'
             model = 'nested-model'
             baseUrl = "$upstreamUrl/api/v1"
+        },
+        @{
+            alias = 'error-route'
+            provider = 'fake'
+            protocol = 'openai'
+            model = 'rate-limited-model'
+            baseUrl = "$upstreamUrl/v1"
+        },
+        @{
+            alias = 'slow-route'
+            provider = 'fake'
+            protocol = 'openai'
+            model = 'slow-model'
+            baseUrl = "$upstreamUrl/v1"
         }
     )
 } | ConvertTo-Json -Depth 8
@@ -198,6 +212,12 @@ try {
         throw "Expected nested route path and model, but received: $($nestedResponse.Body)"
     }
 
+    $errorJson = '{"model":"error-route","messages":[{"role":"user","content":"hi"}]}'
+    $errorResponse = Invoke-JsonPost -Uri "$gatewayUrl/v1/chat/completions" -Json $errorJson
+    if ($errorResponse.StatusCode -ne 429 -or $errorResponse.Body -notmatch 'simulated rate limit') {
+        throw "Expected upstream 429 and its error body, but received $($errorResponse.StatusCode): $($errorResponse.Body)"
+    }
+
     $streamJson = '{"model":"test-alias","stream":true,"messages":[{"role":"user","content":"stream"}]}'
     $streamResponse = Invoke-JsonPost -Uri "$gatewayUrl/v1/chat/completions" -Json $streamJson
     if ($streamResponse.StatusCode -ne 200) {
@@ -206,6 +226,38 @@ try {
 
     if ($streamResponse.Body -notmatch 'data: one' -or $streamResponse.Body -notmatch 'data: two') {
         throw "Expected streamed response chunks were not copied. Body: $($streamResponse.Body)"
+    }
+
+    $cancelClient = [System.Net.Http.HttpClient]::new()
+    $cancelSource = [System.Threading.CancellationTokenSource]::new()
+    $cancelRequest = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::Post, "$gatewayUrl/v1/chat/completions")
+    $cancelRequest.Content = [System.Net.Http.StringContent]::new('{"model":"slow-route","stream":true,"messages":[{"role":"user","content":"cancel"}]}', [System.Text.Encoding]::UTF8, 'application/json')
+    try {
+        $cancelResponse = $cancelClient.SendAsync($cancelRequest, [System.Net.Http.HttpCompletionOption]::ResponseHeadersRead, $cancelSource.Token).GetAwaiter().GetResult()
+        $cancelStream = $cancelResponse.Content.ReadAsStreamAsync().GetAwaiter().GetResult()
+        $firstBytes = New-Object byte[] 64
+        if ($cancelStream.ReadAsync($firstBytes, 0, $firstBytes.Length, $cancelSource.Token).GetAwaiter().GetResult() -le 0) {
+            throw 'Slow stream ended before the first chunk.'
+        }
+        $cancelSource.Cancel()
+    }
+    finally {
+        if ($cancelResponse) { $cancelResponse.Dispose() }
+        $cancelRequest.Dispose()
+        $cancelSource.Dispose()
+        $cancelClient.Dispose()
+    }
+
+    $cancelRecorded = $false
+    for ($attempt = 0; $attempt -lt 20; $attempt++) {
+        if (Test-Path -LiteralPath (Join-Path $tempRoot 'gateway.ndjson')) {
+            $cancelRecorded = @(Get-Content -LiteralPath (Join-Path $tempRoot 'gateway.ndjson') | ForEach-Object { $_ | ConvertFrom-Json } | Where-Object { $_.alias -eq 'slow-route' -and $_.category -eq 'cancelled' }).Count -gt 0
+            if ($cancelRecorded) { break }
+        }
+        Start-Sleep -Milliseconds 250
+    }
+    if (-not $cancelRecorded) {
+        throw 'Gateway did not record client cancellation for the slow stream.'
     }
 
     Write-Host 'Gateway forwarding test passed.'

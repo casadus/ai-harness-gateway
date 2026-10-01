@@ -81,11 +81,23 @@ public sealed class GatewayProxy(
             status = 499;
             category = "cancelled";
         }
+        catch (Exception) when (context.RequestAborted.IsCancellationRequested)
+        {
+            status = 499;
+            category = "cancelled";
+        }
         catch (Exception ex)
         {
             status = StatusCodes.Status502BadGateway;
             category = "gateway-error";
-            await WriteErrorAsync(context, status, ex.Message, context.RequestAborted);
+            if (context.Response.HasStarted)
+            {
+                context.Abort();
+            }
+            else
+            {
+                await WriteErrorAsync(context, status, ex.Message, context.RequestAborted);
+            }
         }
         finally
         {

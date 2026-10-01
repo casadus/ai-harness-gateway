@@ -46,7 +46,7 @@ Each path must complete the same included C# task: read files, make a change, us
   - [x] Preserve `/v1` exactly once when an upstream base URL already ends in `/v1`, including nested `/api/v1` URLs.
   - [ ] Preserve streamed upstream responses under real harness traffic.
   - [ ] Preserve tool-call payloads under real harness traffic.
-  - [ ] Preserve cancellation and useful upstream error status.
+  - [x] Preserve client cancellation and useful upstream error status in fake-upstream tests.
   - [ ] Add discovery endpoints only if observed harness integration requires them.
 
 - [ ] Slice 4: Codex first path
