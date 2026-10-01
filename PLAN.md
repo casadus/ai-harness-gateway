@@ -101,6 +101,7 @@ Each path must complete the same included C# task: read files, make a change, us
   - [x] Create one disposable C# fixture with no company code.
   - [x] Add a fixed prompt, expected observable result, and fresh-copy reset procedure.
   - [x] Add a structured result template with date, task revision, harness/version, provider, model/tag, gateway/version, context, success, tool behavior, check outcome, duration, intervention, and notes.
+  - [x] Record Codex run metadata, duration, and check outcome without storing prompts or source text.
   - [ ] Start every comparison from the same fixture revision.
 
 - [ ] Slice 9: Diagnostics

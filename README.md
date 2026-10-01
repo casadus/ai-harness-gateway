@@ -89,6 +89,14 @@ Create a fresh disposable evaluation task:
 
 The command prints the new directory under `.local/evaluations`. Give the harness the `TASK.md` in that directory and record the run in its `result.json`. The untouched task check fails; fixing the subtotal calculation makes all three checks pass.
 
+For a Codex evaluation, create the task, launch Codex, run the check, and write safe result metadata in one command:
+
+```powershell
+.\scripts\run-codex-evaluation.ps1 -Alias local-qwen
+```
+
+The result leaves tool behavior, human intervention, and overall success for review. It records failure when Codex does not complete or the C# check fails. The runner's successful exit means it wrote the result, not that the harness passed the task.
+
 Run locally:
 
 ```powershell

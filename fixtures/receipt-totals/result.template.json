@@ -9,6 +9,7 @@
   "modelTag": null,
   "gatewayVersion": null,
   "contextTokens": null,
+  "harnessOutcome": null,
   "success": null,
   "toolBehavior": {
     "fileRead": null,

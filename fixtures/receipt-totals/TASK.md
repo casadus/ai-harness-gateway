@@ -6,4 +6,4 @@ Run `dotnet run --project .\Checks\Checks.csproj` and report the check result. M
 
 Expected result: the check prints three `PASS` lines and exits with code 0. The unmodified starter prints failures and exits with code 1.
 
-The evaluation runner copies this task into a new ignored `.local/evaluations/<run-id>` directory. Use a fresh copy for every comparison. Fill `result.json` after the run with the harness, provider, exact model, tool behavior, check outcome, duration, and any human intervention. Leave unavailable fields as `null`.
+The evaluation runner copies this task into a new ignored `.local/evaluations/<run-id>` directory. Use a fresh copy for every comparison. Its `result.json` records route, versions, duration, and check outcome. Review the harness session to fill tool behavior, human intervention, and overall success. Leave unavailable fields as `null`.
